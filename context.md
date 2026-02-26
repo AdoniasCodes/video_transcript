@@ -79,6 +79,7 @@ From `requirements.txt`:
 - `huggingface-hub==0.20.3`
 - `requests==2.31.0`
 - `rich==13.7.0`
+- `gdown==5.2.0` (used for public Google Drive downloads)
 
 Notes:
 
@@ -98,3 +99,10 @@ A successful example run was:
 - Create/activate a Python virtual environment.
 - Install `requirements.txt`.
 - Run `transcribe.py` on a video path or URL.
+
+## Google Drive support
+
+Public Google Drive links are supported.
+
+- The script extracts the file id from common Drive URL formats.
+- Download is handled by `gdown` and saved into `videos/`.

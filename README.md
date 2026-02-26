@@ -41,6 +41,12 @@ Or a URL (it will download into `videos/`):
 python transcribe.py "https://example.com/video.mp4"
 ```
 
+Or a public Google Drive link (it will download into `videos/`):
+
+```bash
+python transcribe.py "https://drive.google.com/file/d/<FILE_ID>/view?usp=sharing"
+```
+
 Output:
 
 - `transcripts/<video_name>.txt`

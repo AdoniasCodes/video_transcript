@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+import gdown
 import requests
 from faster_whisper import WhisperModel
 from rich.console import Console
@@ -42,7 +43,42 @@ def which_ffmpeg() -> Optional[str]:
     return shutil.which("ffmpeg")
 
 
+def is_google_drive_url(url: str) -> bool:
+    return "drive.google.com" in url or "docs.google.com" in url
+
+
+def google_drive_file_id(url: str) -> Optional[str]:
+    # Common patterns:
+    # - https://drive.google.com/file/d/<FILE_ID>/view?usp=sharing
+    # - https://drive.google.com/open?id=<FILE_ID>
+    # - https://drive.google.com/uc?id=<FILE_ID>&export=download
+    m = re.search(r"/file/d/([a-zA-Z0-9_-]+)", url)
+    if m:
+        return m.group(1)
+    m = re.search(r"[?&]id=([a-zA-Z0-9_-]+)", url)
+    if m:
+        return m.group(1)
+    return None
+
+
+def download_google_drive_to_videos(url: str, videos_dir: Path) -> Path:
+    file_id = google_drive_file_id(url)
+    if not file_id:
+        raise ValueError("Could not extract Google Drive file id from URL")
+
+    # Let gdown infer the filename; put it in videos/.
+    console.print("Downloading from Google Drive...")
+    output = gdown.download(id=file_id, output=str(videos_dir), quiet=False)
+    if not output:
+        raise RuntimeError("Google Drive download failed (file may not be public or requires a confirm page)")
+
+    return Path(output)
+
+
 def download_to_videos(url: str, videos_dir: Path) -> Path:
+    if is_google_drive_url(url):
+        return download_google_drive_to_videos(url, videos_dir)
+
     filename = url.split("?")[0].rstrip("/").split("/")[-1] or "video"
     filename = slugify_filename(filename)
 
